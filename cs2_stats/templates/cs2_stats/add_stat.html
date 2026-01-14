@@ -1,0 +1,129 @@
+{% extends "cs2_stats/base.html" %}
+
+{% block title %}Add Statistics - CS2 Stats{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-plus-circle"></i> Add Monthly Statistics
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Player Info -->
+                <div class="text-center mb-4">
+                    {% if player.avatar %}
+                    <img src="{{ player.avatar }}" alt="{{ player.nickname }}"
+                         class="rounded-circle mb-2" width="80" height="80">
+                    {% endif %}
+                    <h5>{{ player.nickname }}</h5>
+                    <p class="text-muted">{{ player.steam_id }}</p>
+                </div>
+
+                <!-- Form -->
+                <form method="post">
+                    {% csrf_token %}
+
+                    <!-- Сообщения об ошибках -->
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Please correct the errors below.
+                    </div>
+                    {% endif %}
+
+                    <!-- Год и месяц -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Year</label>
+                            {{ form.year }}
+                            {% if form.year.errors %}
+                            <div class="text-danger small">{{ form.year.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Month</label>
+                            {{ form.month }}
+                            {% if form.month.errors %}
+                            <div class="text-danger small">{{ form.month.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Матчи -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-controller"></i> Matches Played
+                        </label>
+                        {{ form.matches_played }}
+                        {% if form.matches_played.errors %}
+                        <div class="text-danger small">{{ form.matches_played.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Total number of matches this month</div>
+                    </div>
+
+                    <!-- Убийства и смерти -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-bullseye"></i> Kills
+                            </label>
+                            {{ form.kills }}
+                            {% if form.kills.errors %}
+                            <div class="text-danger small">{{ form.kills.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-emoji-dizzy"></i> Deaths
+                            </label>
+                            {{ form.deaths }}
+                            {% if form.deaths.errors %}
+                            <div class="text-danger small">{{ form.deaths.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Победы -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-trophy"></i> Wins
+                        </label>
+                            {{ form.wins }}
+                            {% if form.wins.errors %}
+                            <div class="text-danger small">{{ form.wins.errors }}</div>
+                            {% endif %}
+                        <div class="form-text">Number of matches won</div>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="card mb-4 bg-light">
+                        <div class="card-body">
+                            <h6><i class="bi bi-eye"></i> What will be calculated?</h6>
+                            <ul class="mb-0">
+                                <li><strong>K/D Ratio:</strong> Kills ÷ Deaths (automatically)</li>
+                                <li><strong>Win Rate:</strong> (Wins ÷ Matches) × 100% (automatically)</li>
+                                <li><strong>Monthly Progress:</strong> Will appear in charts</li>
+                                <li><strong>Total Stats:</strong> Will update player's overall statistics</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Кнопки -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="bi bi-check-circle"></i> Add Statistics
+                        </button>
+                        <a href="{% url 'player_profile' player.steam_id %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
