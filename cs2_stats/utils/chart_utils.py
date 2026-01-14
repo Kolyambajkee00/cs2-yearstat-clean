@@ -5,67 +5,93 @@ import uuid
 
 
 def prepare_all_charts(monthly_stats):
-    """Создать все графики для профиля игрока"""
+    """
+    Создает все графики для отображения на странице профиля игрока.
+
+    Args:
+        monthly_stats (QuerySet): Набор объектов MonthlyStat для игрока
+
+    Returns:
+        list: Список HTML графиков для вставки в шаблон
+              Возвращает пустой список если нет данных
+    """
     charts = []
 
     if not monthly_stats:
         return charts
 
-    # 1. График K/D Ratio
+    # 1. График K/D Ratio (коэффициент убийств/смертей)
     kd_chart = create_kd_chart(monthly_stats)
     if kd_chart:
-        charts.append(kd_chart)  # ← Без заголовка, только график
+        charts.append(kd_chart)
 
-    # 2. График Win Rate
+    # 2. График Win Rate (процент побед)
     winrate_chart = create_winrate_chart(monthly_stats)
     if winrate_chart:
-        charts.append(winrate_chart)  # ← Без заголовка
+        charts.append(winrate_chart)
 
-    # 3. График Kills per Match
+    # 3. График Kills per Match (убийств за матч)
     kpm_chart = create_kills_per_match_chart(monthly_stats)
     if kpm_chart:
-        charts.append(kpm_chart)  # ← Без заголовка
+        charts.append(kpm_chart)
 
     return charts
 
 
 def create_kd_chart(monthly_stats):
-    """Создать график K/D Ratio"""
+    """
+    Создает линейный график динамики K/D Ratio по месяцам.
+
+    Args:
+        monthly_stats (QuerySet): Статистика по месяцам
+
+    Returns:
+        str: HTML код графика или None если нет данных
+    """
     months = []
     kd_values = []
 
+    # Формируем данные для оси X (месяцы) и Y (значения K/D)
     for stat in monthly_stats:
-        month_label = f"{stat.year}-{stat.month:02d}"
+        month_label = f"{stat.year}-{stat.month:02d}"  # Формат: "2025-01"
         months.append(month_label)
         kd_values.append(stat.kd_ratio)
 
     if not months:
         return None
 
+    # Создаем линейный график Plotly
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=months,
         y=kd_values,
-        mode='lines+markers',
+        mode='lines+markers',  # Линия + точки
         name='K/D Ratio',
-        line=dict(color='blue', width=3),
-        marker=dict(size=8)
+        line=dict(color='blue', width=3),  # Синяя линия
+        marker=dict(size=8)  # Крупные точки
     ))
 
     fig.update_layout(
-        # УБИРАЕМ title или оставляем пустым
-        title='',  # ← Пустой заголовок
+        title='',  # Пустой заголовок (отображается в шаблоне)
         xaxis_title='Month',
         yaxis_title='K/D Ratio',
-        template='plotly_white',
-        height=400
+        template='plotly_white',  # Чистая белая тема
+        height=400  # Фиксированная высота
     )
 
     return fig_to_html(fig, 'kd')
 
 
 def create_winrate_chart(monthly_stats):
-    """Создать график Win Rate"""
+    """
+    Создает столбчатую диаграмму процента побед по месяцам.
+
+    Args:
+        monthly_stats (QuerySet): Статистика по месяцам
+
+    Returns:
+        str: HTML код графика или None если нет данных
+    """
     months = []
     winrate_values = []
 
@@ -77,16 +103,17 @@ def create_winrate_chart(monthly_stats):
     if not months:
         return None
 
+    # Создаем столбчатую диаграмму
     fig = go.Figure()
     fig.add_trace(go.Bar(
         x=months,
         y=winrate_values,
         name='Win Rate %',
-        marker_color='green'
+        marker_color='green'  # Зеленые столбцы
     ))
 
     fig.update_layout(
-        title='',  # ← Пустой заголовок
+        title='',
         xaxis_title='Month',
         yaxis_title='Win Rate (%)',
         template='plotly_white',
@@ -97,7 +124,15 @@ def create_winrate_chart(monthly_stats):
 
 
 def create_kills_per_match_chart(monthly_stats):
-    """Создать график Kills per Match"""
+    """
+    Создает график среднего количества убийств за матч по месяцам.
+
+    Args:
+        monthly_stats (QuerySet): Статистика по месяцам
+
+    Returns:
+        str: HTML код графика или None если нет данных
+    """
     months = []
     kpm_values = []
 
@@ -105,6 +140,7 @@ def create_kills_per_match_chart(monthly_stats):
         if stat.matches_played > 0:
             month_label = f"{stat.year}-{stat.month:02d}"
             months.append(month_label)
+            # Рассчитываем убийства за матч с округлением
             kpm_values.append(round(stat.kills / stat.matches_played, 1))
 
     if not months:
@@ -116,12 +152,12 @@ def create_kills_per_match_chart(monthly_stats):
         y=kpm_values,
         mode='lines+markers',
         name='Kills per Match',
-        line=dict(color='red', width=3),
+        line=dict(color='red', width=3),  # Красная линия
         marker=dict(size=8)
     ))
 
     fig.update_layout(
-        title='',  # ← Пустой заголовок
+        title='',
         xaxis_title='Month',
         yaxis_title='Kills per Match',
         template='plotly_white',
@@ -132,34 +168,44 @@ def create_kills_per_match_chart(monthly_stats):
 
 
 def fig_to_html(fig, chart_type):
-    """Конвертировать Plotly Figure в HTML с отложенной загрузкой"""
-    # Генерируем уникальный ID
+    """
+    Конвертирует объект Plotly Figure в HTML с JavaScript для отложенной загрузки.
+
+    Args:
+        fig (go.Figure): Объект графика Plotly
+        chart_type (str): Тип графика ('kd', 'winrate', 'kpm')
+
+    Returns:
+        SafeString: Безопасный HTML код для вставки в шаблон Django
+    """
+    # Генерируем уникальный ID для div графика
     chart_id = f"{chart_type}_{uuid.uuid4().hex[:8]}"
 
-    # Конвертируем в JSON
+    # Конвертируем график в JSON для передачи в JavaScript
     plot_json = fig.to_json()
     plot_data = json.loads(plot_json)
 
-    # Создаем чистый HTML
+    # Создаем HTML с встроенным JavaScript для инициализации графика
     html = f'''
     <div id="{chart_id}" style="width: 100%; height: 400px;"></div>
     <script>
-    // Отложенная инициализация графика
+    // Отложенная инициализация графика (ждет загрузки Plotly библиотеки)
     function initChart_{chart_id}() {{
         if (typeof Plotly !== 'undefined') {{
+            // Инициализируем график когда библиотека загружена
             Plotly.newPlot(
                 '{chart_id}',
-                {json.dumps(plot_data['data'])},
-                {json.dumps(plot_data['layout'])},
-                {{"responsive": true}}
+                {json.dumps(plot_data['data'])},      // Данные графика
+                {json.dumps(plot_data['layout'])},    // Настройки layout
+                {{"responsive": true}}                 // Адаптивность
             );
         }} else {{
-            // Если Plotly ещё не загружен, ждём
+            // Если Plotly ещё не загружен, повторяем через 100мс
             setTimeout(initChart_{chart_id}, 100);
         }}
     }}
 
-    // Запускаем когда DOM готов
+    // Запускаем инициализацию когда DOM готов
     if (document.readyState === 'loading') {{
         document.addEventListener('DOMContentLoaded', initChart_{chart_id});
     }} else {{
@@ -168,11 +214,25 @@ def fig_to_html(fig, chart_type):
     </script>
     '''
 
-    return mark_safe(html)
+    return mark_safe(html)  # Помечаем HTML как безопасный для Django
 
 
 def calculate_total_stats(monthly_stats):
-    """Рассчитать общую статистику"""
+    """
+    Рассчитывает агрегированную статистику по всем месяцам.
+
+    Args:
+        monthly_stats (QuerySet): Статистика по месяцам
+
+    Returns:
+        dict: Словарь с общей статистикой:
+            - matches: общее количество матчей
+            - kills: общее количество убийств
+            - deaths: общее количество смертей
+            - wins: общее количество побед
+            - kd: общий K/D ratio
+            - win_rate: общий процент побед
+    """
     total = {
         'matches': 0,
         'kills': 0,
@@ -185,15 +245,18 @@ def calculate_total_stats(monthly_stats):
     if not monthly_stats:
         return total
 
+    # Суммируем значения по всем месяцам
     for stat in monthly_stats:
         total['matches'] += stat.matches_played
         total['kills'] += stat.kills
         total['deaths'] += stat.deaths
         total['wins'] += stat.wins
 
+    # Рассчитываем общий K/D (избегаем деления на 0)
     if total['deaths'] > 0:
         total['kd'] = round(total['kills'] / total['deaths'], 2)
 
+    # Рассчитываем общий процент побед
     if total['matches'] > 0:
         total['win_rate'] = round((total['wins'] / total['matches']) * 100, 1)
 

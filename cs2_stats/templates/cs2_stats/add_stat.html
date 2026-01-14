@@ -3,30 +3,38 @@
 {% block title %}Add Statistics - CS2 Stats{% endblock %}
 
 {% block content %}
+<!-- Основной контейнер для добавления статистики -->
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
+        <!-- Карточка с формой добавления статистики -->
         <div class="card">
+            <!-- Заголовок карточки с иконкой и цветовым оформлением -->
             <div class="card-header bg-primary text-white">
                 <h4 class="mb-0">
                     <i class="bi bi-plus-circle"></i> Add Monthly Statistics
                 </h4>
             </div>
+
+            <!-- Тело карточки с формой -->
             <div class="card-body">
-                <!-- Player Info -->
+                <!-- Информация об игроке (аватар, никнейм, Steam ID) -->
                 <div class="text-center mb-4">
                     {% if player.avatar %}
+                    <!-- Отображение аватара игрока (если есть) -->
                     <img src="{{ player.avatar }}" alt="{{ player.nickname }}"
                          class="rounded-circle mb-2" width="80" height="80">
                     {% endif %}
+                    <!-- Никнейм игрока -->
                     <h5>{{ player.nickname }}</h5>
+                    <!-- Steam ID игрока (уникальный идентификатор) -->
                     <p class="text-muted">{{ player.steam_id }}</p>
                 </div>
 
-                <!-- Form -->
+                <!-- Форма для добавления месячной статистики -->
                 <form method="post">
-                    {% csrf_token %}
+                    {% csrf_token %}  <!-- CSRF токен для защиты от межсайтовых запросов -->
 
-                    <!-- Сообщения об ошибках -->
+                    <!-- Блок для отображения ошибок формы -->
                     {% if form.errors %}
                     <div class="alert alert-danger">
                         <i class="bi bi-exclamation-triangle"></i>
@@ -34,43 +42,47 @@
                     </div>
                     {% endif %}
 
-                    <!-- Год и месяц -->
+                    <!-- Год и месяц статистики -->
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Year</label>
-                            {{ form.year }}
+                            {{ form.year }}  <!-- Поле выбора года -->
                             {% if form.year.errors %}
+                            <!-- Отображение ошибок валидации для поля года -->
                             <div class="text-danger small">{{ form.year.errors }}</div>
                             {% endif %}
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Month</label>
-                            {{ form.month }}
+                            {{ form.month }}  <!-- Поле выбора месяца -->
                             {% if form.month.errors %}
+                            <!-- Отображение ошибок валидации для поля месяца -->
                             <div class="text-danger small">{{ form.month.errors }}</div>
                             {% endif %}
                         </div>
                     </div>
 
-                    <!-- Матчи -->
+                    <!-- Количество сыгранных матчей за месяц -->
                     <div class="mb-3">
                         <label class="form-label">
                             <i class="bi bi-controller"></i> Matches Played
                         </label>
-                        {{ form.matches_played }}
+                        {{ form.matches_played }}  <!-- Поле для ввода количества матчей -->
                         {% if form.matches_played.errors %}
+                        <!-- Отображение ошибок валидации -->
                         <div class="text-danger small">{{ form.matches_played.errors }}</div>
                         {% endif %}
+                        <!-- Подсказка для пользователя -->
                         <div class="form-text">Total number of matches this month</div>
                     </div>
 
-                    <!-- Убийства и смерти -->
+                    <!-- Статистика убийств и смертей -->
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">
                                 <i class="bi bi-bullseye"></i> Kills
                             </label>
-                            {{ form.kills }}
+                            {{ form.kills }}  <!-- Поле для ввода количества убийств -->
                             {% if form.kills.errors %}
                             <div class="text-danger small">{{ form.kills.errors }}</div>
                             {% endif %}
@@ -79,43 +91,49 @@
                             <label class="form-label">
                                 <i class="bi bi-emoji-dizzy"></i> Deaths
                             </label>
-                            {{ form.deaths }}
+                            {{ form.deaths }}  <!-- Поле для ввода количества смертей -->
                             {% if form.deaths.errors %}
                             <div class="text-danger small">{{ form.deaths.errors }}</div>
                             {% endif %}
                         </div>
                     </div>
 
-                    <!-- Победы -->
+                    <!-- Количество побед -->
                     <div class="mb-4">
                         <label class="form-label">
                             <i class="bi bi-trophy"></i> Wins
                         </label>
-                            {{ form.wins }}
-                            {% if form.wins.errors %}
-                            <div class="text-danger small">{{ form.wins.errors }}</div>
-                            {% endif %}
+                        {{ form.wins }}  <!-- Поле для ввода количества побед -->
+                        {% if form.wins.errors %}
+                        <div class="text-danger small">{{ form.wins.errors }}</div>
+                        {% endif %}
                         <div class="form-text">Number of matches won</div>
                     </div>
 
-                    <!-- Preview -->
+                    <!-- Информационная карточка о том, что будет рассчитано автоматически -->
                     <div class="card mb-4 bg-light">
                         <div class="card-body">
                             <h6><i class="bi bi-eye"></i> What will be calculated?</h6>
                             <ul class="mb-0">
+                                <!-- K/D Ratio будет рассчитан автоматически -->
                                 <li><strong>K/D Ratio:</strong> Kills ÷ Deaths (automatically)</li>
+                                <!-- Win Rate будет рассчитан автоматически -->
                                 <li><strong>Win Rate:</strong> (Wins ÷ Matches) × 100% (automatically)</li>
+                                <!-- Прогресс будет отображен на графиках -->
                                 <li><strong>Monthly Progress:</strong> Will appear in charts</li>
+                                <!-- Общая статистика игрока будет обновлена -->
                                 <li><strong>Total Stats:</strong> Will update player's overall statistics</li>
                             </ul>
                         </div>
                     </div>
 
-                    <!-- Кнопки -->
+                    <!-- Кнопки действий -->
                     <div class="d-flex gap-2">
+                        <!-- Кнопка отправки формы -->
                         <button type="submit" class="btn btn-primary flex-grow-1">
                             <i class="bi bi-check-circle"></i> Add Statistics
                         </button>
+                        <!-- Кнопка отмены (возврат к профилю игрока) -->
                         <a href="{% url 'player_profile' player.steam_id %}" class="btn btn-outline-secondary">
                             <i class="bi bi-x-circle"></i> Cancel
                         </a>

@@ -6,35 +6,53 @@ from .utils.chart_utils import prepare_all_charts, calculate_total_stats
 
 
 def home(request):
-    """Главная страница"""
+    """
+    Главная страница приложения.
+    Отображает форму для поиска игрока по Steam ID.
+    """
     return render(request, 'cs2_stats/home.html')
 
 
 def player_search(request):
-    """Поиск игрока по Steam ID"""
+    """
+    Обработчик поиска игрока.
+    Если игрок найден - перенаправляет на его профиль.
+    Если не найден - создает нового и обновляет данные из Steam.
+    """
     if request.method == 'POST':
         steam_id = request.POST.get('steam_id', '').strip()
 
         if steam_id:
-            # Проверяем есть ли игрок в базе
+            # Проверяем есть ли игрок в базе данных
             player = Player.objects.filter(steam_id=steam_id).first()
 
             if player:
+                # Игрок существует - переходим к профилю
                 return redirect('player_profile', steam_id=steam_id)
             else:
                 # Создаем нового игрока
                 player = Player.objects.create(steam_id=steam_id)
-                # Пробуем обновить из Steam
+                # Обновляем данные из Steam API
                 player.update_from_steam()
                 return redirect('player_profile', steam_id=steam_id)
 
+    # Если не POST запрос - возвращаем на главную
     return redirect('home')
 
 
 def player_profile(request, steam_id):
+    """
+    Страница профиля игрока.
+    Отображает:
+    - Информацию об игроке из Steam
+    - Месячную статистику в виде таблицы
+    - Интерактивные графики прогресса
+    - Общую сводную статистику
+    """
     player = get_object_or_404(Player, steam_id=steam_id)
     monthly_stats = player.monthly_stats.all().order_by('year', 'month')
 
+    # Подготавливаем графики и общую статистику
     charts = prepare_all_charts(monthly_stats)
     total_stats = calculate_total_stats(monthly_stats)
 
@@ -49,11 +67,14 @@ def player_profile(request, steam_id):
 
 
 def add_monthly_stat(request, steam_id):
-    """Добавление статистики за месяц"""
+    """
+    Добавление новой статистики за месяц.
+    Включает валидацию через форму MonthlyStatForm.
+    """
     player = get_object_or_404(Player, steam_id=steam_id)
 
     if request.method == 'POST':
-        # Передаем игрока в форму
+        # Передаем игрока в форму для проверки уникальности месяца
         form = MonthlyStatForm(request.POST, player=player)
         if form.is_valid():
             monthly_stat = form.save(commit=False)
@@ -66,7 +87,7 @@ def add_monthly_stat(request, steam_id):
             )
             return redirect('player_profile', steam_id=steam_id)
     else:
-        form = MonthlyStatForm(player=player)  # ← передаем игрока
+        form = MonthlyStatForm(player=player)  # Пустая форма с переданным игроком
 
     context = {
         'player': player,
@@ -77,7 +98,10 @@ def add_monthly_stat(request, steam_id):
 
 
 def edit_monthly_stat(request, stat_id):
-    """Редактирование статистики"""
+    """
+    Редактирование существующей статистики.
+    Позволяет изменить данные за конкретный месяц.
+    """
     stat = get_object_or_404(MonthlyStat, id=stat_id)
 
     if request.method == 'POST':
@@ -98,11 +122,14 @@ def edit_monthly_stat(request, stat_id):
 
 
 def delete_monthly_stat(request, stat_id):
-    """Удаление статистики"""
+    """
+    Удаление статистики за месяц.
+    Удаляет запись сразу без дополнительного подтверждения
+    (подтверждение происходит через JavaScript в шаблоне).
+    """
     stat = get_object_or_404(MonthlyStat, id=stat_id)
     steam_id = stat.player.steam_id
 
-    # Удаляем сразу (или можно добавить проверку если POST)
     stat.delete()
     messages.success(request, '✅ Statistics deleted successfully!')
     return redirect('player_profile', steam_id=steam_id)

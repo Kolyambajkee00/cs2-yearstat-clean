@@ -10,24 +10,25 @@
     <div class="col-md-4 mb-4">
         <div class="card">
             <div class="card-body text-center">
-                <!-- Аватар -->
+                <!-- Аватар игрока из Steam -->
                 {% if player.avatar %}
                 <img src="{{ player.avatar }}" alt="{{ player.nickname }}" class="player-avatar mb-3">
                 {% else %}
+                <!-- Заглушка если аватар отсутствует -->
                 <div class="player-avatar bg-secondary d-flex align-items-center justify-content-center mb-3">
                     <i class="bi bi-person display-4 text-white"></i>
                 </div>
                 {% endif %}
 
-                <!-- Никнейм -->
+                <!-- Никнейм игрока -->
                 <h2 class="mb-2">{{ player.nickname|default:"Unknown Player" }}</h2>
 
-                <!-- Steam ID -->
+                <!-- Steam ID (уникальный идентификатор) -->
                 <p class="text-muted">
                     <i class="bi bi-steam"></i> {{ player.steam_id }}
                 </p>
 
-                <!-- Страна -->
+                <!-- Страна игрока (если указана в Steam) -->
                 {% if player.country %}
                 <div class="mb-3">
                     <span class="badge bg-secondary">
@@ -37,7 +38,7 @@
                 </div>
                 {% endif %}
 
-                <!-- Часы в CS2 -->
+                <!-- Часы проведенные в CS2 -->
                 <div class="mb-4">
                     <h5>
                         <i class="bi bi-clock text-primary"></i>
@@ -45,7 +46,7 @@
                     </h5>
                 </div>
 
-                <!-- Кнопка обновления -->
+                <!-- Кнопка обновления данных из Steam API -->
                 <form method="post" action="{% url 'player_search' %}">
                     {% csrf_token %}
                     <input type="hidden" name="steam_id" value="{{ player.steam_id }}">
@@ -54,38 +55,42 @@
                     </button>
                 </form>
 
-                <!-- На главную -->
+                <!-- Кнопка возврата на главную страницу -->
                 <a href="{% url 'home' %}" class="btn btn-outline-secondary w-100">
                     <i class="bi bi-house"></i> Back to Home
                 </a>
             </div>
         </div>
 
-        <!-- Быстрая статистика -->
+        <!-- Блок быстрой статистики (итоговые показатели) -->
         <div class="card mt-4">
             <div class="card-body">
                 <h5 class="card-title">
                     <i class="bi bi-speedometer2"></i> Quick Stats
                 </h5>
                 <div class="row text-center">
+                    <!-- Всего матчей -->
                     <div class="col-6 mb-3">
                         <div class="stat-card">
                             <h3 class="text-primary">{{ total_stats.matches }}</h3>
                             <small class="text-muted">Total Matches</small>
                         </div>
                     </div>
+                    <!-- Общий K/D Ratio -->
                     <div class="col-6 mb-3">
                         <div class="stat-card">
                             <h3 class="text-success">{{ total_stats.kd }}</h3>
                             <small class="text-muted">Overall K/D</small>
                         </div>
                     </div>
+                    <!-- Процент побед -->
                     <div class="col-6">
                         <div class="stat-card">
                             <h3 class="text-warning">{{ total_stats.win_rate }}%</h3>
                             <small class="text-muted">Win Rate</small>
                         </div>
                     </div>
+                    <!-- Всего убийств -->
                     <div class="col-6">
                         <div class="stat-card">
                             <h3 class="text-danger">{{ total_stats.kills }}</h3>
@@ -96,7 +101,7 @@
             </div>
         </div>
 
-        <!-- Кнопка управления статистикой -->
+        <!-- Панель управления статистикой -->
         <div class="card mt-4">
             <div class="card-body text-center">
                 <h5 class="card-title">
@@ -105,11 +110,13 @@
                 <p class="text-muted">Add, edit or view your monthly stats</p>
 
                 <div class="d-flex flex-column gap-2">
+                    <!-- Кнопка добавления новой статистики -->
                     <a href="{% url 'add_monthly_stat' player.steam_id %}"
                        class="btn btn-primary">
                         <i class="bi bi-plus-circle"></i> Add Monthly Stats
                     </a>
 
+                    <!-- Кнопка просмотра всей статистики (открывает модальное окно) -->
                     {% if monthly_stats %}
                     <button type="button" class="btn btn-outline-info"
                             data-bs-toggle="modal" data-bs-target="#statsModal">
@@ -123,41 +130,45 @@
 
     <!-- ПРАВАЯ КОЛОНКА: Графики и таблицы -->
     <div class="col-md-8">
-        <!-- Графики -->
+        <!-- Блок графиков -->
         {% if charts %}
+            <!-- График 1: Динамика K/D Ratio -->
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">
                         <i class="bi bi-graph-up"></i> K/D Ratio Progress
                     </h5>
                     <div class="chart-container">
-                        {{ charts.0|safe }}
+                        {{ charts.0|safe }}  <!-- Первый график из списка -->
                     </div>
                 </div>
             </div>
 
+            <!-- График 2: Динамика процента побед -->
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">
                         <i class="bi bi-bar-chart"></i> Win Rate Progress
                     </h5>
                     <div class="chart-container">
-                        {{ charts.1|safe }}
+                        {{ charts.1|safe }}  <!-- Второй график из списка -->
                     </div>
                 </div>
             </div>
 
+            <!-- График 3: Средние убийства за матч -->
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">
                         <i class="bi bi-bullseye"></i> Average Kills per Match
                     </h5>
                     <div class="chart-container">
-                        {{ charts.2|safe }}
+                        {{ charts.2|safe }}  <!-- Третий график из списка -->
                     </div>
                 </div>
             </div>
         {% else %}
+            <!-- Сообщение если статистика отсутствует -->
             <div class="card mb-4">
                 <div class="card-body text-center py-5">
                     <i class="bi bi-bar-chart display-1 text-muted mb-3"></i>
@@ -172,8 +183,7 @@
             </div>
         {% endif %}
 
-
-        <!-- Таблица месячной статистики -->
+        <!-- Таблица детальной месячной статистики -->
         {% if monthly_stats %}
         <div class="card">
             <div class="card-body">
@@ -202,22 +212,27 @@
                                 <td>{{ stat.kills }}</td>
                                 <td>{{ stat.deaths }}</td>
                                 <td>{{ stat.wins }}</td>
+                                <!-- K/D с цветовым кодированием -->
                                 <td>
                                     <span class="badge bg-{{ stat.kd_ratio|kd_badge_class }}">
                                         {{ stat.kd_ratio }}
                                     </span>
                                 </td>
+                                <!-- Win Rate с цветовым кодированием -->
                                 <td>
                                     <span class="badge bg-{{ stat.win_rate|winrate_badge_class }}">
                                         {{ stat.win_rate }}%
                                     </span>
                                 </td>
+                                <!-- Кнопки действий -->
                                 <td>
                                     <div class="btn-group btn-group-sm">
+                                        <!-- Редактирование статистики -->
                                         <a href="{% url 'edit_monthly_stat' stat.id %}"
                                            class="btn btn-outline-primary btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>
+                                        <!-- Удаление статистики с подтверждением -->
                                         <a href="{% url 'delete_monthly_stat' stat.id %}"
                                            class="btn btn-outline-danger btn-sm"
                                            onclick="return confirm('Delete statistics for {{ stat.year }}/{{ stat.month }}?')">
@@ -236,7 +251,7 @@
     </div>
 </div>
 
-<!-- Модальное окно управления статистикой -->
+<!-- Модальное окно для управления статистикой -->
 <div class="modal fade" id="statsModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">

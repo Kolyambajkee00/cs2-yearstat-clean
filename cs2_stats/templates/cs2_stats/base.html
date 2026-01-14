@@ -2,47 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Определение viewport для адаптивности на мобильных устройствах -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Динамический заголовок страницы (переопределяется в дочерних шаблонах) -->
     <title>{% block title %}CS2 Stats Tracker{% endblock %}</title>
 
-    <!-- Bootstrap 5 CSS -->
+    <!-- Подключение Bootstrap 5 CSS фреймворка для стилизации -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Bootstrap Icons -->
+    <!-- Подключение Bootstrap Icons для иконок -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
-    <!-- Custom CSS -->
+    <!-- Пользовательские стили CSS -->
     <style>
+        /* Основной фон страницы с градиентом */
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            min-height: 100vh; /* Минимальная высота = высота окна */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        /* Стили для логотипа в навигации */
         .navbar-brand {
             font-weight: bold;
             font-size: 1.5rem;
         }
 
+        /* Стили карточек с анимацией при наведении */
         .card {
             border: none;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
+            transition: transform 0.3s; /* Анимация поднятия карточки */
         }
 
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-5px); /* Эффект поднятия при наведении */
         }
 
+        /* Стили для основной кнопки с градиентом */
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
             padding: 12px 30px;
-            border-radius: 50px;
+            border-radius: 50px; /* Скругленные углы */
             font-weight: bold;
         }
 
+        /* Стиль для карточек со статистикой */
         .stat-card {
             background: white;
             border-radius: 15px;
@@ -50,14 +57,16 @@
             margin-bottom: 20px;
         }
 
+        /* Стиль для аватара игрока */
         .player-avatar {
             width: 100px;
             height: 100px;
-            border-radius: 50%;
+            border-radius: 50%; /* Круглый аватар */
             border: 5px solid white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Тень для объема */
         }
 
+        /* Стиль для флагов стран (если будет использоваться) */
         .country-flag {
             font-size: 2rem;
             margin-right: 10px;
@@ -65,16 +74,21 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
+    <!-- Навигационная панель -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
+            <!-- Логотип и название сайта -->
             <a class="navbar-brand" href="{% url 'home' %}">
                 <i class="bi bi-controller"></i> CS2 Stats Tracker
             </a>
+
+            <!-- Меню навигации -->
             <div class="navbar-nav">
+                <!-- Ссылка на главную страницу -->
                 <a class="nav-link" href="{% url 'home' %}">
                     <i class="bi bi-house"></i> Home
                 </a>
+                <!-- Ссылка на админ-панель (открывается в новой вкладке) -->
                 <a class="nav-link" href="/admin/" target="_blank">
                     <i class="bi bi-speedometer2"></i> Admin
                 </a>
@@ -82,25 +96,28 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Основной контент страницы -->
     <div class="container py-5">
         {% block content %}
+        <!-- Блок будет переопределен в дочерних шаблонах -->
         {% endblock %}
     </div>
 
-    <!-- Footer -->
+    <!-- Подвал сайта -->
     <footer class="bg-dark text-white py-4 mt-5">
         <div class="container text-center">
             <p class="mb-0">CS2 Stats Tracker &copy; 2025 | Steam API Integration</p>
         </div>
     </footer>
 
-    <!-- Plotly JS ДОЛЖЕН БЫТЬ ПЕРВЫМ и БЕЗ defer -->
+    <!-- Подключение Plotly.js для интерактивных графиков -->
+    <!-- ВАЖНО: Должен быть загружен ПЕРЕД Bootstrap JS для корректной работы -->
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 
-    <!-- Bootstrap JS -->
+    <!-- Подключение Bootstrap JS (включает Popper.js для всплывающих окон) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Блок для дополнительных скриптов (переопределяется в дочерних шаблонах) -->
     {% block scripts %}
     {% endblock %}
 </body>

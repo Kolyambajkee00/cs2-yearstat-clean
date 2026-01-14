@@ -3,23 +3,28 @@ from .models import MonthlyStat
 
 
 class MonthlyStatForm(forms.ModelForm):
-    """Форма для ввода статистики за месяц"""
+    """
+    Форма для добавления и редактирования месячной статистики.
+    Включает валидацию данных и проверку уникальности.
+    """
 
     class Meta:
         model = MonthlyStat
         fields = ['year', 'month', 'matches_played', 'kills', 'deaths', 'wins']
+
+        # Кастомизация виджетов для Bootstrap стилей
         widgets = {
             'year': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'min': 2024,
-                'max': 2026,
-                'value': 2025
+                'min': 2024,  # Минимальный год
+                'max': 2026,  # Максимальный год
+                'value': 2025  # Значение по умолчанию
             }),
-            'month': forms.Select(attrs={'class': 'form-control'}),
+            'month': forms.Select(attrs={'class': 'form-control'}),  # Выпадающий список месяцев
             'matches_played': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'min': 0,
-                'placeholder': 'e.g., 50'
+                'min': 0,  # Не может быть отрицательным
+                'placeholder': 'e.g., 50'  # Пример для пользователя
             }),
             'kills': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -39,24 +44,33 @@ class MonthlyStatForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.player = kwargs.pop('player', None)
+        """
+        Инициализация формы с игроком.
+        player передается из views для проверки уникальности.
+        """
+        self.player = kwargs.pop('player', None)  # Игрок для валидации
         super().__init__(*args, **kwargs)
 
     def clean(self):
-        """Валидация данных"""
+        """
+        Валидация данных формы.
+        Проверяет:
+        1. Победы не больше матчей
+        2. Уникальность месяца для игрока
+        """
         cleaned_data = super().clean()
         matches = cleaned_data.get('matches_played')
         wins = cleaned_data.get('wins')
         year = cleaned_data.get('year')
         month = cleaned_data.get('month')
 
-        # Проверка: победы не больше матчей
+        # Проверка 1: Победы не могут превышать количество матчей
         if matches is not None and wins is not None:
             if wins > matches:
-                # Привязываем ошибку к полю 'wins'
+                # Привязываем ошибку к полю 'wins' для отображения рядом с ним
                 self.add_error('wins', "Wins cannot be greater than matches played!")
 
-        # Проверка: уникальность месяца для игрока
+        # Проверка 2: Уникальность комбинации игрок-год-месяц
         if self.player and year and month:
             # Проверяем существует ли уже статистика за этот месяц
             existing = MonthlyStat.objects.filter(

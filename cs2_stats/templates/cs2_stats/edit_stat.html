@@ -3,67 +3,82 @@
 {% block title %}Edit Statistics - CS2 Stats{% endblock %}
 
 {% block content %}
+<!-- Основной контейнер для редактирования статистики -->
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
+        <!-- Карточка с формой редактирования -->
         <div class="card">
+            <!-- Заголовок карточки -->
             <div class="card-header bg-warning text-dark">
                 <h4 class="mb-0">
                     <i class="bi bi-pencil-square"></i> Edit Statistics
+                    <!-- Отображение года и месяца редактируемой статистики -->
                     <small class="text-muted d-block">{{ stat.year }}/{{ stat.month }}</small>
                 </h4>
             </div>
+
+            <!-- Тело карточки -->
             <div class="card-body">
-                <!-- Player Info -->
+                <!-- Информация об игроке -->
                 <div class="text-center mb-4">
+                    <!-- Аватар игрока (если есть) -->
                     {% if player.avatar %}
                     <img src="{{ player.avatar }}" alt="{{ player.nickname }}"
                          class="rounded-circle mb-2" width="80" height="80">
                     {% endif %}
+                    <!-- Никнейм игрока -->
                     <h5>{{ player.nickname }}</h5>
+                    <!-- Год и месяц статистики -->
                     <p class="text-muted">{{ stat.year }}/{{ stat.month }}</p>
                 </div>
 
-                <!-- Form -->
+                <!-- Форма для редактирования статистики -->
                 <form method="post">
-                    {% csrf_token %}
+                    {% csrf_token %}  <!-- Защита от CSRF-атак -->
 
-                    <!-- Та же форма что и в add_stat.html -->
+                    <!-- Поля года и месяца -->
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Year</label>
-                            {{ form.year }}
+                            {{ form.year }}  <!-- Поле для выбора года -->
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Month</label>
-                            {{ form.month }}
+                            {{ form.month }}  <!-- Поле для выбора месяца -->
                         </div>
                     </div>
 
+                    <!-- Количество сыгранных матчей -->
                     <div class="mb-3">
                         <label class="form-label">Matches Played</label>
-                        {{ form.matches_played }}
+                        {{ form.matches_played }}  <!-- Поле для количества матчей -->
                     </div>
 
+                    <!-- Убийства и смерти -->
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Kills</label>
-                            {{ form.kills }}
+                            {{ form.kills }}  <!-- Поле для количества убийств -->
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Deaths</label>
-                            {{ form.deaths }}
+                            {{ form.deaths }}  <!-- Поле для количества смертей -->
                         </div>
                     </div>
 
+                    <!-- Количество побед -->
                     <div class="mb-4">
                         <label class="form-label">Wins</label>
-                        {{ form.wins }}
+                        {{ form.wins }}  <!-- Поле для количества побед -->
                     </div>
 
+                    <!-- Кнопки действия -->
                     <div class="d-flex gap-2">
+                        <!-- Кнопка сохранения изменений -->
                         <button type="submit" class="btn btn-warning flex-grow-1">
                             <i class="bi bi-check-circle"></i> Update Statistics
                         </button>
+                        <!-- Кнопка отмены (возврат к профилю игрока) -->
                         <a href="{% url 'player_profile' player.steam_id %}" class="btn btn-outline-secondary">
                             Cancel
                         </a>
